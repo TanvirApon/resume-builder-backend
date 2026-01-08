@@ -41,12 +41,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String,Object>>handleGenericException(ResourceExitsException ex){
+    public ResponseEntity<Map<String,Object>> handleGenericException(Exception ex){
         Map<String,Object> response = new HashMap<>();
         response.put("message","Something went wrong. Contact Administrator");
-        response.put("errors",ex.getMessage());
+        response.put("errors", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-
     }
 }
