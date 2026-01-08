@@ -42,6 +42,8 @@ public class AuthService {
 
 
     private void sendVerificationEmail(User newUser) {
+        log.info("Inside Auth Service: sendVerificationEmail() {}",newUser);
+
         try{
             String link = appBaseUrl + "/api/auth/verify-email?token="+newUser.getVarificationToken();
             String html ="<!DOCTYPE html>" +
@@ -70,6 +72,21 @@ public class AuthService {
             log.error("Email sending failed: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to send verification email");
         }
+    }
+
+    public void verifyEmail(String token){
+        log.info("Inside Auth Service: verifyEmail() {}",token);
+        User user = userRepository.findByVerificationToken(token)
+                .orElseThrow(()-> new RuntimeException("Invalid or Expired Verification Token"));
+
+        if(user.getVarificationExpires()!=null && user.getVarificationExpires().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Invalid or Expired Verification Token");
+        }
+
+        user.setEmailVarified(true);
+        user.setVarificationToken(null);
+        user.setVarificationExpires(null);
+        userRepository.save(user);
     }
 
     private AuthResponse toResponse(User newUser){
