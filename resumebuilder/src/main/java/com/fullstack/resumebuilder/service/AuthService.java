@@ -67,6 +67,7 @@ public class AuthService {
             emailService.sendHtmlEmail(newUser.getEmail(),"Verify Email",html);
         }
         catch (Exception e){
+            log.error("Email sending failed: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to send verification email");
         }
     }
