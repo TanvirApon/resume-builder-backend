@@ -2,14 +2,18 @@ package com.fullstack.resumebuilder.service;
 
 import com.fullstack.resumebuilder.document.User;
 import com.fullstack.resumebuilder.dto.AuthResponse;
+import com.fullstack.resumebuilder.dto.LoginRequest;
 import com.fullstack.resumebuilder.dto.RegisterRequest;
 import com.fullstack.resumebuilder.exception.ResourceExitsException;
 import com.fullstack.resumebuilder.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.naming.NameNotFoundException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -20,6 +24,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${app.base.url}")
     private String appBaseUrl;
@@ -76,7 +81,7 @@ public class AuthService {
 
     public void verifyEmail(String token){
         log.info("Inside Auth Service: verifyEmail() {}",token);
-        User user = userRepository.findByVerificationToken(token)
+        User user = userRepository.findByVarificationToken(token)
                 .orElseThrow(()-> new RuntimeException("Invalid or Expired Verification Token"));
 
         if(user.getVarificationExpires()!=null && user.getVarificationExpires().isBefore(LocalDateTime.now())) {
@@ -106,7 +111,7 @@ public class AuthService {
             return User.builder()
                     .name(request.getName())
                     .email(request.getEmail())
-                    .password(request.getPassword())
+                    .password(passwordEncoder.encode(request.getPassword()))
                     .profileImageUrl(request.getProfileImageUrl())
                     .subscriptionPlan("basic")
                     .emailVarified(false)
@@ -115,5 +120,20 @@ public class AuthService {
                     .build();
     }
 
+    public AuthResponse login(LoginRequest request){
+
+       User existingUser =  userRepository.findByEmail(request.getEmail())
+                .orElseThrow(()-> new UsernameNotFoundException("Email not found"));
+
+       if(!passwordEncoder.matches(request.getPassword(),existingUser.getPassword())){
+           throw new UsernameNotFoundException("Please verify email before loggin in");
+       }
+
+       String token = "jwtToken";
+
+       AuthResponse response = toResponse(existingUser);
+       response.setToken(token);
+       return response;
+    }
 
 }

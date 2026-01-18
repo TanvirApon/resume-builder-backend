@@ -3,6 +3,7 @@ package com.fullstack.resumebuilder.controller;
 
 import com.fullstack.resumebuilder.document.User;
 import com.fullstack.resumebuilder.dto.AuthResponse;
+import com.fullstack.resumebuilder.dto.LoginRequest;
 import com.fullstack.resumebuilder.dto.RegisterRequest;
 import com.fullstack.resumebuilder.service.AuthService;
 import com.fullstack.resumebuilder.service.FileUploadService;
@@ -47,5 +48,12 @@ public class AuthController {
     public ResponseEntity<?> uploadImage(@RequestPart("image") MultipartFile file) throws IOException {
         Map<String,String> response = fileUploadService.uploadSingleImage(file);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(LOGIN)
+    public ResponseEntity<?>login(@Valid @RequestBody LoginRequest request){
+        AuthResponse response =  authService.login(request);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
     }
 }
