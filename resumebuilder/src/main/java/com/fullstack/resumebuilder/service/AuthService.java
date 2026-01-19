@@ -6,6 +6,7 @@ import com.fullstack.resumebuilder.dto.LoginRequest;
 import com.fullstack.resumebuilder.dto.RegisterRequest;
 import com.fullstack.resumebuilder.exception.ResourceExitsException;
 import com.fullstack.resumebuilder.repository.UserRepository;
+import com.fullstack.resumebuilder.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil  jwtUtil;
 
     @Value("${app.base.url}")
     private String appBaseUrl;
@@ -129,7 +131,7 @@ public class AuthService {
            throw new UsernameNotFoundException("Please verify email before loggin in");
        }
 
-       String token = "jwtToken";
+       String token = jwtUtil.generateToken(existingUser.getId());
 
        AuthResponse response = toResponse(existingUser);
        response.setToken(token);
