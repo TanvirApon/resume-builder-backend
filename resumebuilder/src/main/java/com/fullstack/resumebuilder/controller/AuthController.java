@@ -1,7 +1,6 @@
 package com.fullstack.resumebuilder.controller;
 
 
-import com.fullstack.resumebuilder.document.User;
 import com.fullstack.resumebuilder.dto.AuthResponse;
 import com.fullstack.resumebuilder.dto.LoginRequest;
 import com.fullstack.resumebuilder.dto.RegisterRequest;
@@ -10,7 +9,6 @@ import com.fullstack.resumebuilder.service.FileUploadService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.fullstack.resumebuilder.util.AppContants.*;
+import static com.fullstack.resumebuilder.util.AppContents.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,5 +53,10 @@ public class AuthController {
         AuthResponse response =  authService.login(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
+    }
+
+    @GetMapping("/validate")
+    public String testValidationToken(){
+        return "Token Validation is working";
     }
 }
